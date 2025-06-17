@@ -17,20 +17,23 @@ mod TokenSaleContract {
     
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
+    #[abi(embed_v0)]
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+
     
 
     #[storage]
     struct Storage {
-        accepted_payment_token: ContractAddress,
-        token_price: Map<ContractAddress, u256>,
+        pub accepted_payment_token: ContractAddress,
+        pub token_price: Map<ContractAddress, u256>,
         // owner: ContractAddress,
-        tokens_available_for_sale: Map<ContractAddress, u256>,
+        pub tokens_available_for_sale: Map<ContractAddress, u256>,
 
         #[substorage(v0)]
-        anything: UpgradeableComponent::Storage,
+        pub anything: UpgradeableComponent::Storage,
 
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[event]
@@ -49,7 +52,7 @@ mod TokenSaleContract {
         self.ownable.initializer(owner);
         self.accepted_payment_token.write(accepted_payment_token);
     }
-
+    #[abi(embed_v0)]
     impl TokenSaleImpl of ITokenSale<ContractState> {
         fn check_available_token(self: @ContractState, token_address: ContractAddress) -> u256 {
             let token = IERC20Dispatcher { contract_address: token_address };
@@ -98,6 +101,10 @@ mod TokenSaleContract {
             self.ownable.assert_only_owner();
 
             self.anything.upgrade(new_class_hash);
+        }
+
+        fn get_owner(self: @ContractState) -> ContractAddress {
+            return self.ownable.owner();
         }
     }
 }

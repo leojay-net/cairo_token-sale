@@ -9,4 +9,6 @@ pub trait ITokenSale<TContractState> {
     fn buy_token(ref self: TContractState, token_address: ContractAddress, amount: u256);
 
     fn upgrade(ref self: TContractState, new_class_hash: ClassHash);
+
+    fn get_owner(self: @TContractState) -> ContractAddress;
 }
